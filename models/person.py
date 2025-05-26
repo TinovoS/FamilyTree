@@ -1,7 +1,10 @@
 from datetime import date
 import uuid
 from enum import Enum
-from tkinter import Place
+from typing import List, Optional
+
+from models.relationships import Relationship
+from models.relationships import RelationshipType
 
 
 class Gender(Enum):
@@ -10,7 +13,7 @@ class Gender(Enum):
     OTHER = 'O'
 
 class Person:
-    def __init__(self, first_name, last_name, gender):
+    def __init__(self, first_name: str, last_name: str, gender: Gender):
         self.__id = uuid.uuid4()
         self.__first_name = first_name
         self.__last_name = last_name
@@ -22,17 +25,16 @@ class Person:
         self.__death_date = None
         self.__birth_place = None
         self.__age = None
-        self.__parents = []
-        self.__children = []
-        self.__notes = "" #like later people can post stuff about them on socials like comments and etc share their expirience
-        self.__photos = [] #same goes for photos people can share about them
+        self.__relationships = List[Relationship] = []
+        self.__notes = ""  # like later people can post stuff about them on socials like comments and etc share their expirience
+        self.__photos = []  # same goes for photos people can share about them
 
     @property
     def first_name(self) -> str:
         return self.__first_name
 
     @property
-    def lastName(self) -> str:
+    def last_name(self) -> str:
         return self.__last_name
 
     @property
@@ -81,18 +83,6 @@ class Person:
         else:
             return (self.__death_date - self.__birth_date).year
 
-    def add_child(self, child: 'Person'):
-        if child not in self.__children:
-            self.__children.append(child)
-            child.add_parent(self)
-            self.__update_last_modified()
-
-    def add_parent(self, parent: 'Person'):
-        if parent not in self.__parents:
-            if len(self.__parents) < 2:
-                self.__parents.append(parent)
-                self.__update_last_modified()
-
     def check_alive(self):
         if self.__death_date is not None:
             self.__alive = False
@@ -100,3 +90,21 @@ class Person:
 
     def __update_last_modified(self):
         self.__last_update = date.today()
+
+    def add_relationship(
+            self,
+            to_person: 'Person',
+            relationship_type: RelationshipType
+            ) -> None:
+        new_rel = Relationship(self, to_person, relationship_type)
+        self.__relationships.append(new_rel)
+
+    def get_relationships(
+            self,
+            *,
+            relationship_type: Optional[RelationshipType] = None
+            ) -> List[Relationship]:
+        results = self.__relationships
+        if relationship_type:
+            results = [r for r in  results if r.relationship_type == relationship_type]
+        return results
