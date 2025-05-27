@@ -1,7 +1,7 @@
 from datetime import date
 import uuid
 from enum import Enum
-from typing import List, Optional
+from typing import List, Optional, Set
 
 from models.relationships import Relationship
 from models.relationships import RelationshipType
@@ -94,17 +94,32 @@ class Person:
     def add_relationship(
             self,
             to_person: 'Person',
-            relationship_type: RelationshipType
-            ) -> None:
+            relationship_type: RelationshipType,
+            *,
+            reciprocal: bool = True,
+            **kwargs
+    ) -> None:
         new_rel = Relationship(self, to_person, relationship_type)
         self.__relationships.append(new_rel)
+        #todo
+        #if reciprocal:
+        #   reciprocal_type =
 
     def get_relationships(
             self,
             *,
             relationship_type: Optional[RelationshipType] = None
-            ) -> List[Relationship]:
+    ) -> List[Relationship]:
         results = self.__relationships
         if relationship_type:
             results = [r for r in  results if r.relationship_type == relationship_type]
         return results
+
+    def get_relatives(
+            self,
+            relationship_type: Optional[RelationshipType] = None,
+    ) -> Set['Person']:
+        return {
+            rel.to_person
+            for rel in self.get_relationships(relationship_type=relationship_type)
+        }
