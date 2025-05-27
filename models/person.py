@@ -3,8 +3,7 @@ import uuid
 from enum import Enum
 from typing import List, Optional, Set
 
-from models.relationships import Relationship
-from models.relationships import RelationshipType
+from models.relationships import Relationship, RelationshipType
 
 
 class Gender(Enum):
